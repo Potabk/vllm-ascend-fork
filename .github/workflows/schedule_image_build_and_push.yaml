@@ -76,5 +76,6 @@ jobs:
       quay_username: ${{ vars.QUAY_USERNAME }}
       should_push: ${{ github.repository_owner == 'vllm-project' && (github.event_name != 'pull_request') || (github.event_name == 'workflow_dispatch') }}
       workflow_dispatch_tag: ${{ inputs.tag }}
+      cache_repo: ${{ inputs.cache_repo }}
     secrets:
       QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
