@@ -56,7 +56,11 @@ jobs:
             tag: arm64
     steps:
     - name: Set lowercase cache repo
-      run: echo "CACHE_REPO=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+      run: |
+        # For the repo name with uppercase letters
+        # convert it to lowercase to avoid issues in Docker registry.
+        REPO="${{ inputs.cache_repo }}"
+        echo "CACHE_REPO=${REPO:-ghcr.io/${GITHUB_REPOSITORY,,}}" >> $GITHUB_ENV
 
     - uses: actions/checkout@v6
       if: ${{ github.event_name != 'workflow_dispatch' }}
