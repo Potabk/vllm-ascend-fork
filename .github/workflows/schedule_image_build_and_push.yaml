@@ -31,6 +31,14 @@ on:
           - v0.15.0rc1
           - v0.14.0rc1
           - v0.13.0rc3
+      cache_repo:
+        description: 'which registry to store the build cache, which will be used in next build to speed up the build process.'
+        default: 'ghcr.io/Potabk/vllm-ascend-fork'
+        required: true
+        type: choice
+        options:
+          - ghcr.io/Potabk/vllm-ascend-fork
+          - quay.io/wangli12345/vllm-ascend
 
 permissions:
   packages: write
@@ -67,5 +75,6 @@ jobs:
       suffix: ${{ matrix.build_meta.suffix }}
       quay_username: ${{ vars.QUAY_USERNAME }}
       should_push: ${{ github.repository_owner == 'vllm-project' && (github.event_name != 'pull_request') || (github.event_name == 'workflow_dispatch') }}
+      workflow_dispatch_tag: ${{ inputs.tag }}
     secrets:
       QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
