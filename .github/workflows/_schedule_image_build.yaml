@@ -77,7 +77,7 @@ jobs:
         password: ${{ secrets.QUAY_PASSWORD }}
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v4
       with:
         install: true
         driver: docker-container
@@ -193,7 +193,7 @@ jobs:
           password: ${{ secrets.QUAY_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Merge and push multi-arch image
         env:
