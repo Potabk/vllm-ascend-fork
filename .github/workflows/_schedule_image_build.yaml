@@ -28,6 +28,10 @@ on:
             description: 'Quay password for pushing images'
             required: false
 
+env:
+  QUAY_REPO: quay.io/wangli12345/vllm-ascend
+  CACHE_REPO: ghcr.io/${{ github.repository }}
+
 jobs:
   build-push-digest:
     name: build
@@ -35,9 +39,6 @@ jobs:
     permissions:
       packages: write
       contents: read
-    env:
-      QUAY_REPO: quay.io/ascend/vllm-ascend
-      CACHE_REPO: ghcr.io/${{ github.repository }}
 
     strategy:
       matrix:
@@ -49,6 +50,9 @@ jobs:
             runner: ubuntu-22.04-arm
             tag: arm64
     steps:
+    - name: Set lowercase cache repo
+      run: echo "CACHE_REPO=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
     - uses: actions/checkout@v6
       if: ${{ github.event_name != 'workflow_dispatch' }}
       with:
@@ -114,7 +118,7 @@ jobs:
           PIP_INDEX_URL=https://pypi.org/simple
         provenance: false
         cache-from: type=registry,ref=${{ env.CACHE_REPO }}:${{ steps.cache-tag.outputs.value }}
-        cache-to: ${{ inputs.should_push && format('type=registry,ref=ghcr.io/{0}:{1},mode=max', github.repository, steps.cache-tag.outputs.value) || '' }}
+        cache-to: ${{ inputs.should_push && format('type=registry,ref={0}:{1},mode=max', env.CACHE_REPO, steps.cache-tag.outputs.value) || '' }}
 
     - name: Export digest
       run: |
@@ -168,7 +172,7 @@ jobs:
         with:
           # TODO(yikun): add more hub image and a note on release policy for container image
           images: |
-            quay.io/ascend/vllm-ascend
+            ${{ env.QUAY_REPO }}
           # Note for test case
           # https://github.com/marketplace/actions/docker-metadata-action#typeref
           # 1. branch job publish per main/*-dev branch commits
@@ -197,7 +201,7 @@ jobs:
 
       - name: Merge and push multi-arch image
         env:
-          IMAGE: quay.io/ascend/vllm-ascend
+          IMAGE: ${{ env.QUAY_REPO }}
           TAGS: ${{ steps.meta.outputs.tags }}
         run: |
           DIGESTS=$(printf "$IMAGE@sha256:%s " $(ls ${{ runner.temp }}/digests))
